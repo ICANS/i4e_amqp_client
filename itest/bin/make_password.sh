@@ -1,7 +1,7 @@
 #!/bin/sh
-NUM_CHARS=20
+NUM_CHARS=80
 FILENAME='.password'
-CHARSET='a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?='
+CHARSET='a-zA-Z0-9-_@#%^:='
 while getopts f:c:n: OPTION
 do
 	case $OPTION in
