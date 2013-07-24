@@ -1,0 +1,12 @@
+{application, i4e_amqp_client,
+ [{description, "ICANS for Erlang AMQP client"},
+  {vsn, "0.1.0"},
+  {registered, [i4e_amqp_client_sup,
+  				i4e_amqp_consumer_sup,
+  				i4e_amqp_producer_sup,
+  				i4e_amqp_setup_sup,
+  				i4e_amqp_producer]},
+  {application, [kernel, stdlib]},
+  {mod, { i4e_amqp_client_app, []} },
+  {env, []}
+ ]}.

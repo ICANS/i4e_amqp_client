@@ -1,0 +1,63 @@
+[
+	{i4e_amqp_client, [
+		{consumers, [
+			[
+				{connection, [
+					{host, "127.0.0.1"},
+					{port, 5672},
+					{username, <<"i4e_amqp_client_itest">>},
+					{password, <<"{{PASSWORD}}">>},
+					{virtual_host, <<"i4e_amqp_client_itest">>}
+				]},
+				{queue, [
+					{queue, <<"i4e_amqp_client_itest_queue">>}
+				]},
+				{processor, {callback, [
+					{deliver_cb, {basic_SUITE, handle_deliver}},
+					{error_cb, {basic_SUITE, handle_error}},
+					{acknowledge, all}
+				]}}
+			]
+		]},
+		{producers, [
+			[
+				{server_ref, singleton},
+				{connection, [
+					{host, "127.0.0.1"},
+					{port, 5672},
+					{username, <<"i4e_amqp_client_itest">>},
+					{password, <<"{{PASSWORD}}">>},
+					{virtual_host, <<"i4e_amqp_client_itest">>}
+				]},
+				{publish, [
+					{exchange, <<"i4e_amqp_client_itest_exchange">>},
+					{delivery_mode, non_persistent}
+				]}
+			]
+		]},
+		{setups, [
+			[
+				{connection, [
+					{host, "127.0.0.1"},
+					{port, 5672},
+					{username, <<"i4e_amqp_client_itest">>},
+					{password, <<"{{PASSWORD}}">>},
+					{virtual_host, <<"i4e_amqp_client_itest">>}
+				]},
+				{exchange, [
+					{exchange, <<"i4e_amqp_client_itest_exchange">>}
+				]},
+				{queue, [
+					{queue, <<"i4e_amqp_client_itest_queue">>}
+				]},
+				{binding, [
+					{exchange, <<"i4e_amqp_client_itest_exchange">>},
+					{queue, <<"i4e_amqp_client_itest_queue">>}
+				]},
+				{teardown_on_stop, [
+					all_bindings
+				]}
+			]
+		]}
+	]}
+].

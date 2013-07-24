@@ -1,0 +1,2 @@
+-sname i4e_amqp_client_itest
+-config itest/config/ct.config
