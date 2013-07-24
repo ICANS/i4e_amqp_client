@@ -31,7 +31,7 @@
 %% ====================================================================
 %%
 %% @author Bjoern Kortuemm <bjoern.kortuemm@icans-gmbh.com>
-%% @doc Simple consumer server.
+%% @doc Consumer server.
 %%
 %% Start the consumer with start_link/1.
 %% You have to provide a processor definition, which is a tuple of type
