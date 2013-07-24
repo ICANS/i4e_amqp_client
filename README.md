@@ -51,9 +51,9 @@ And last but not least you can start and use *i4e_amqp_producer*, *i4e_amqp_cons
 
 If you want to auto-start consumers/producers/setups on application startup, just put their definitions into the config. See itest/config/ct.config.template.
 
-To dynamically start consumers/producers/setups use *i4e_amqp_client:start_consumer/1*/*i4e_amqp_client:start_producer/1*/*i4e_amqp_client:start_setup/1*.
+To dynamically start consumers/producers/setups use *i4e_amqp_client:start_consumer/1* / *i4e_amqp_client:start_producer/1* / *i4e_amqp_client:start_setup/1*.
 
-You can stop a consumer with *i4e_amqp_client:stop_consumer/1*/*i4e_amqp_client:stop_producer/1*/*i4e_amqp_client:stop_setup/1*.
+You can stop a consumer with *i4e_amqp_client:stop_consumer/1* / *i4e_amqp_client:stop_producer/1* / *i4e_amqp_client:stop_setup/1*.
 
 ### The i4e_amqp_callback_processor
 
