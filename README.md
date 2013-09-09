@@ -21,6 +21,7 @@ Terms
 Apart from the usual terms used in AMQP context (see [rabbitmq tutorials](http://www.rabbitmq.com/getstarted.html)) there is one additional concept I'd like to mention.
 
 ### Setup
+
 Setups can be used to declare exchanges, queue and bindings according to a configuration list (e.g. from the application config).
 Depending on the configuration of 'teardown_on_stop' the setup will tear down all/some/none of the declarations it has made automatically.
 Examples:
@@ -103,5 +104,6 @@ ToDos
 - i4e_amqp_setup connect only when needed, disconnect after operation
 - dynamic declaration / deletion in setups
 - deletion in setup ("delete queue X and declare queue X again")
-- as always: more tests (units, tear down)
+- as always: more tests (units, tear down, custom modules in consumer)
 - full example.config
+- parallelization of consumer
