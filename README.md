@@ -106,4 +106,3 @@ ToDos
 - deletion in setup ("delete queue X and declare queue X again")
 - as always: more tests (units, tear down, custom modules in consumer)
 - full example.config
-- parallelization of consumer

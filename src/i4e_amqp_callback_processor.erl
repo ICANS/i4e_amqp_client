@@ -83,7 +83,8 @@
 -export_type([start_opt/0]).
 -type start_opt() :: {deliver_cb, cb_def()}
 				   | {error_cb, cb_def()}
-				   | {acknowledge, acknowledge_mode()}.
+				   | {acknowledge, acknowledge_mode()}
+				   | {handle_mode, non_blocking | blocking}.
 -type cb_def() :: {module(), function()}
 				| {module(), function(), [any()]}
 				| fun().
@@ -101,7 +102,7 @@ is_valid_opts(Opts) ->
 %% ====================================================================
 %% Behavioural functions 
 %% ====================================================================
--record(state, {deliver_cb, channel, error_cb, acknowledge}).
+-record(state, {deliver_cb, channel, error_cb, acknowledge, handle_mode=non_blocking}).
 
 -define(GV(K,L), proplists:get_value(K,L)).
 -define(GV(K,L,D), proplists:get_value(K,L,D)).
@@ -122,7 +123,8 @@ init([Opts]) ->
 	{ok, #state{
 				deliver_cb = get_cb(?GV(deliver_cb, Opts)),
 				error_cb = ErrorCb,
-				acknowledge = ?GV(acknowledge, Opts, all)
+				acknowledge = ?GV(acknowledge, Opts, all),
+				handle_mode = ?GV(handle_mode, Opts, non_blocking)
 			   }}.
 
 
@@ -179,23 +181,20 @@ handle_cancel_ok(#'basic.cancel_ok'{}=_CancelOk, #'basic.cancel'{}=_Cancel, Stat
 %% This callback is invoked by the channel every time a basic.deliver
 %% is received from the server.
 %% ====================================================================
-handle_deliver(#'basic.deliver'{delivery_tag=Tag}=Deliver,
+handle_deliver(#'basic.deliver'{}=Deliver,
 			   #amqp_msg{}=Msg,
-			   #state{deliver_cb=Cb, channel=Ch, acknowledge=AckMode}=State) ->
-	Ack = case Cb(Msg) of
-			  {error, Reason} ->
-				  ErrorCb = State#state.error_cb,
-				  ErrorCb({Reason, Deliver, Msg, Ch}),
-				  shall_ack(AckMode, error);
-			  X ->
-				  shall_ack(AckMode, X)
-		  end,
-	case Ack of
-		true ->
-			amqp_channel:cast(Ch, #'basic.ack'{delivery_tag=Tag}),
-			ok;
-		false ->
-			ok
+			   #state{deliver_cb=Cb,
+					  error_cb=ErrorCb,
+					  channel=Ch,
+					  acknowledge=AckMode,
+					  handle_mode=HMode}=State) ->
+	case HMode of
+		blocking ->
+			do_handle_deliver(Deliver, Msg, Cb, ErrorCb, Ch, AckMode);
+		non_blocking ->
+			proc_lib:spawn(fun() ->
+								   do_handle_deliver(Deliver, Msg, Cb, ErrorCb, Ch, AckMode)
+						   end)
 	end,
 	{ok, State}.
 
@@ -280,3 +279,33 @@ shall_ack(_, {ok, leave}) ->	false;
 shall_ack(ok, error) ->			false;
 shall_ack(error, ok) ->			false;
 shall_ack(error, error) ->		true.
+
+do_handle_deliver(#'basic.deliver'{delivery_tag=Tag}=Deliver,
+				  #amqp_msg{}=Msg,
+				  Cb, ErrorCb, Ch, AckMode) -> 
+	R = case cb(Cb,Msg) of
+			  {error, Reason} ->
+				  error_cb(ErrorCb, {Reason, Deliver, Msg, Ch}),
+				  error;
+			  X -> X
+		  end,
+	ack_if(shall_ack(AckMode, R), Ch, Tag),
+	ok.
+
+cb(Cb, Arg) ->
+	try
+		Cb(Arg)
+	catch
+		error:Reason -> {error, Reason}
+	end.
+
+error_cb(Cb, Arg) ->
+	try
+		Cb(Arg)
+	catch
+		error:Reason ->
+			error_logger:error_report({?MODULE, handle_deliver, error_cb, Reason})
+	end.
+
+ack_if(true, Ch, Tag) ->	amqp_channel:cast(Ch, #'basic.ack'{delivery_tag=Tag});
+ack_if(false, _, _) ->		ok.

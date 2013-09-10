@@ -37,6 +37,8 @@
 %% 
 %% consume_base
 %% consume_error
+%%
+%% @todo Test blocking/non_blocking
 
 
 
