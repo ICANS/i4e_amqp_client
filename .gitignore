@@ -4,6 +4,8 @@
 *.beam
 .eunit
 *.do_not_commit
+*.iml
+.idea
 ebin/*.app
 doc/*.html
 doc/*.png
