@@ -45,9 +45,12 @@
 %% ====================================================================
 %% API functions
 %% ====================================================================
--export([groups/0, all/0,
-		 init_per_group/2, end_per_group/2,
-		 init_per_testcase/2, end_per_testcase/2]).
+-export([groups/0,
+         all/0,
+         init_per_group/2,
+         end_per_group/2,
+         init_per_testcase/2,
+         end_per_testcase/2]).
 -export([application_startup/1,
 		 consume_base/1, consume_error/1]).
 -export([handle_deliver/1, handle_error/1]).
@@ -89,7 +92,7 @@ end_per_group(_, _Config) ->
 init_all(Config) ->
 	?APP:start(),
 	Config.
-	
+
 
 init_per_testcase(_, Config) ->
 	?ETS = ets:new(?ETS, [named_table, public, set]),
@@ -97,7 +100,7 @@ init_per_testcase(_, Config) ->
 
 
 end_per_testcase(_, _Config) ->
-	case ets:info(?ETS) of 
+	case ets:info(?ETS) of
 		undefined -> ok;
 		Info when is_list(Info) -> ets:delete(?ETS)
 	end,
@@ -139,7 +142,7 @@ consume_base(_Config) ->
 	consume_reset_actual(),
 	i4e_amqp_client:produce(Expected),
 	timer:sleep(?WAIT_TIME),
-	consume_process_results(Expected, false). 
+	consume_process_results(Expected, false).
 
 consume_error(_Config) ->
 	Expected = <<"error triggered">>,
